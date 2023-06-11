@@ -5,7 +5,13 @@ ha egy nap egy irányba többször is átlépünk a határon.
 """
 
 import sys
+import json
 
+path = "./python_test/15nodes39edges.json"
+with open(path, 'r') as file:
+    g = json.load(file)
+
+"""
 g = {
     "hungarian" : [0, 1, 2, 3, 8], # nodes in Hungary
     "austrian" : [4, 5, 6, 7, 9], # nodes in Austria
@@ -18,12 +24,9 @@ g = {
         (1, 4, 10),
         (4, 8, 15),
         (8, 9, 2)
-    ],
-    
-    "roads2" :  {
-        0: [(1,5), (9,40), (8, 11)] # neighbours of 0, (node2, distance)
-    }
+    ]
 }
+"""
 
 def get_hungarian_nodes():
     "Returns the hungarian nodes of the graph."
@@ -131,11 +134,12 @@ def print_result(crossed_border, previous_nodes, shortest_path, start_node, targ
         print("Once we crossed the border.")
     else:
         print("No border crossing happened.")
+    
     print("The shortest path has a value of {}.".format(shortest_path[target_node]))
     print(" -> ".join(str(city) for city in reversed(path)))
 
 START = 0
-DESTINATION = 9
+DESTINATION = 8
 crossed_border, previous_nodes, shortest_path = dijkstra_algorithm(start_node=START)
 # print(crossed_border)
 # print(previous_nodes)
