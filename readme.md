@@ -5,3 +5,8 @@ Sopronból Rechnitzbe szeretnénk eljutni a legrövidebb úton, de az osztrák h
 ```bash
 python3 problem_generator.py
 ```
+
+## Run dijkstra.cpp
+```bash
+g++ -I/opt/homebrew/Cellar/nlohmann-json/3.11.2/include/ -std=c++11 dijkstra.cpp
+```
