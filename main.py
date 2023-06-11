@@ -66,6 +66,17 @@ def get_distance(node1, node2):
 # print(get_distance(9,0))
 # print(get_distance(0,9))
 
+hungarian_nodes = get_hungarian_nodes()
+austrian_nodes = get_austrian_nodes()
+def cross_border(node1, node2):
+    "Check whether two nodes are crossing border or not. Crossing means one of them is in Austria, and the other is in Hungary."
+    return (node1 in hungarian_nodes and node2 in austrian_nodes) or (node1 in austrian_nodes and node2 in hungarian_nodes)
+
+
+# print(cross_border(0,4)) # True
+# print(cross_border(2,3)) # False
+# print(cross_border(7,9)) # False
+ 
 def dijkstra_algorithm(start_node):
     unvisited_nodes = get_nodes()
     shortest_path = {} # the cost of visiting each node and update it as we move along the graph 
