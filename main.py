@@ -5,41 +5,29 @@ ha egy nap egy irányba többször is átlépünk a határon.
 """
 
 import sys
+import json
 
-g = {
-    "hungarian" : [0, 1, 2, 3, 8], # nodes in Hungary
-    "austrian" : [4, 5, 6, 7, 9], # nodes in Austria
-    "roads": [ # (node1, node2, distance)
-        (0, 1, 5), # equal to (1, 0, 5)
-        (0, 9, 40),
-        (0, 8, 11),
-        (1, 2, 1),
-        (2, 4, 2),
-        (1, 4, 10),
-        (4, 8, 15),
-        (8, 9, 2)
-    ],
-    
-    "roads2" :  {
-        0: [(1,5), (9,40), (8, 11)] # neighbours of 0, (node2, distance)
-    }
-}
+# import graph from json file
+# path = "./python_test/15nodes39edges.json"
+path = "./python_test/sample.json"
+with open(path, 'r') as file:
+    GRAPH = json.load(file)
 
 def get_hungarian_nodes():
     "Returns the hungarian nodes of the graph."
-    return g["hungarian"]
+    return GRAPH["hungarian"]
 
 def get_austrian_nodes():
     "Returns the austrian nodes of the graph."
-    return g["austrian"]
+    return GRAPH["austrian"]
 
 def get_nodes():
     "Returns all nodes of the graph."
-    return g["hungarian"] + g["austrian"]
+    return GRAPH["hungarian"] + GRAPH["austrian"]
 
 def get_edges():
     "Returns the edges of the graph."
-    return g["roads"]
+    return GRAPH["roads"]
 
 def get_neighbours(node):
     "Returns the neighbors of a node."
@@ -66,18 +54,19 @@ def get_distance(node1, node2):
 # print(get_distance(9,0))
 # print(get_distance(0,9))
 
-hungarian_nodes = get_hungarian_nodes()
-austrian_nodes = get_austrian_nodes()
+HUNGARIAN_NODES = get_hungarian_nodes()
+AUSTRIAN_NODES = get_austrian_nodes()
+
 def cross_border(node1, node2):
     "Check whether two nodes are crossing border or not. Crossing means one of them is in Austria, and the other is in Hungary."
-    return (node1 in hungarian_nodes and node2 in austrian_nodes) or (node1 in austrian_nodes and node2 in hungarian_nodes)
-
+    return (node1 in HUNGARIAN_NODES and node2 in AUSTRIAN_NODES) or (node1 in AUSTRIAN_NODES and node2 in HUNGARIAN_NODES)
 
 # print(cross_border(0,4)) # True
 # print(cross_border(2,3)) # False
 # print(cross_border(7,9)) # False
  
 def dijkstra_algorithm(start_node):
+    "Run the dijkstra algorithm considering that maximum one crossing is allowed."
     unvisited_nodes = get_nodes()
     shortest_path = {}  # the cost of visiting each node and update it as we move along the graph
     previous_nodes = {}  # the shortest known path to a node found so far
@@ -116,6 +105,11 @@ def dijkstra_algorithm(start_node):
 
 
 def print_result(crossed_border, previous_nodes, shortest_path, start_node, target_node):
+    "Print the shortest path from start node to destination node, it's distance and whether crossing happened or not."
+    if target_node not in previous_nodes:
+        print("No path exists from the start node to the destination node or we would cross the border multiple times.")
+        return
+    
     path = []
     node = target_node
     crossed = crossed_border[target_node]
@@ -131,11 +125,13 @@ def print_result(crossed_border, previous_nodes, shortest_path, start_node, targ
         print("Once we crossed the border.")
     else:
         print("No border crossing happened.")
+    
     print("The shortest path has a value of {}.".format(shortest_path[target_node]))
     print(" -> ".join(str(city) for city in reversed(path)))
 
 START = 0
-DESTINATION = 9
+DESTINATION = 8
+
 crossed_border, previous_nodes, shortest_path = dijkstra_algorithm(start_node=START)
 # print(crossed_border)
 # print(previous_nodes)
