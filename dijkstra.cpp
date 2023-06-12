@@ -1,6 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <unordered_map>
+#include <limits>
+#include <set>
+
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
@@ -13,7 +17,8 @@ struct Edge {
 class Graph {
 private:
     std::vector<std::vector<Edge>> graph;
-    std::vector<unsigned short int> hu;
+    std::set<unsigned short int> hu;
+    std::unordered_map<unsigned short int, unsigned short int> distances;
 
     bool readGraphFromFile(const std::string& filename) {
         std::ifstream file(filename);
@@ -39,23 +44,56 @@ private:
             graph.push_back(vertexEdges);
         }
 
-        hu = graphJson["hu"].get<std::vector<unsigned short int>>();
+        hu = std::set<unsigned short int>(graphJson["hu"].begin(), graphJson["hu"].end());
 
         return true;
+    }
+
+    bool is_hu(unsigned short int vertex) const {
+        return hu.find(vertex) != hu.end();
+    }
+
+    void computeDistances(unsigned short int startVertex) {
+        distances.clear();
+
+        for (unsigned short int vertex = 0; vertex < graph.size(); ++vertex) {
+            distances[vertex] = std::numeric_limits<unsigned short int>::max();
+        }
+
+        distances[startVertex] = 0;
+
+        std::set<unsigned short int> unvisited;
+        for (unsigned short int vertex = 0; vertex < graph.size(); ++vertex) {
+            unvisited.insert(vertex);
+        }
+
+        while (!unvisited.empty()) {
+            unsigned short int minDistanceVertex = *unvisited.begin();
+            for (unsigned short int vertex : unvisited) {
+                if (distances[vertex] < distances[minDistanceVertex]) {
+                    minDistanceVertex = vertex;
+                }
+            }
+
+            unvisited.erase(minDistanceVertex);
+
+            for (const auto& edge : graph[minDistanceVertex]) {
+                unsigned short int neighbor = edge.neighbor;
+                unsigned short int weight = edge.weight;
+
+                if (is_hu(minDistanceVertex) || is_hu(neighbor)) {
+                    unsigned short int newDistance = distances[minDistanceVertex] + weight;
+                    if (newDistance < distances[neighbor]) {
+                        distances[neighbor] = newDistance;
+                    }
+                }
+            }
+        }
     }
 
 public:
     Graph(const std::string& filename) {
         readGraphFromFile(filename);
-    }
-
-    bool is_hu(unsigned short int vertex) const {
-        for (unsigned short int v : hu) {
-            if (v == vertex) {
-                return true;
-            }
-        }
-        return false;
     }
 
     void printGraph() const {
@@ -67,14 +105,24 @@ public:
             std::cout << std::endl;
         }
 
-        std::cout << "hu: [";
-        for (size_t i = 0; i < hu.size(); ++i) {
-            std::cout << hu[i];
-            if (i != hu.size() - 1) {
-                std::cout << ", ";
-            }
+        std::cout << "hu: ";
+        for (const auto& v : hu) {
+            std::cout << v << " ";
         }
-        std::cout << "]" << std::endl;
+        std::cout << std::endl;
+    }
+
+    void shortest_path(unsigned short int from, unsigned short int to) {
+        if (distances.empty()) {
+            computeDistances(from);
+        }
+
+        std::cout << std::to_string(from) << " -> " << std::to_string(to) << ": ";
+        if (distances.at(to) == std::numeric_limits<unsigned short int>::max()) {
+            std::cout << "No path exists." << std::endl;
+        } else {
+            std::cout << distances.at(to) << std::endl;
+        }
     }
 };
 
@@ -83,8 +131,13 @@ int main() {
 
     graph.printGraph();
 
-    //std::cout << (graph.is_hu(9) ? "9 benne van" : "9 nincs benne") << std::endl;
-    //std::cout << (graph.is_hu(4) ? "4 benne van" : "4 nincs benne") << std::endl;
+    unsigned short int vertex1 = 10;
+    unsigned short int vertex2 = 1;
+
+    graph.shortest_path(0, 0);
+    graph.shortest_path(0, 1);
+    graph.shortest_path(0, 2);
+    graph.shortest_path(0, 3);
 
     return 0;
 }
