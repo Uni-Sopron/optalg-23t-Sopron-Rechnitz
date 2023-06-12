@@ -106,6 +106,10 @@ def dijkstra_algorithm(start_node):
 
 def print_result(crossed_border, previous_nodes, shortest_path, start_node, target_node):
     "Print the shortest path from start node to destination node, it's distance and whether crossing happened or not."
+    if target_node not in previous_nodes:
+        print("No path exists from the start node to the destination node or we would cross the border multiple times.")
+        return
+    
     path = []
     node = target_node
     crossed = crossed_border[target_node]
