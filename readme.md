@@ -9,4 +9,5 @@ python3 problem_generator.py
 ## Run dijkstra.cpp
 ```bash
 g++ -I/opt/homebrew/Cellar/nlohmann-json/3.11.2/include/ -std=c++11 dijkstra.cpp
+./a.out
 ```
